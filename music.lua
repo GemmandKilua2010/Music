@@ -20,6 +20,7 @@ local function FilterMusic()
     end
 
     local finished = false
+
     ContentProvider:PreloadAsync(sounds, function(contentId, status)
         if status == Enum.AssetFetchStatus.Success then
             for sound, data in pairs(musicBySound) do
