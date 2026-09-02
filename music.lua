@@ -1,34 +1,48 @@
 local ContentProvider = game:GetService("ContentProvider")
+local MarketplaceService = game:GetService("MarketplaceService")
 local list = loadstring(game:HttpGet("https://raw.githubusercontent.com/GemmandKilua2010/Music/refs/heads/main/list.lua"))()
 
 local ValidMusic = {}
 
+local function IsValidAudio(id)
+    id = tonumber(id)
+    if not id then return false end
+
+    local success, info = pcall(function()
+        return MarketplaceService:GetProductInfo(id)
+    end)
+
+    if not success or not info or info.AssetTypeId ~= 3 then
+        return false
+    end
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. id
+
+    local loaded = false
+    local connection
+    connection = sound.Loaded:Connect(function()
+        loaded = true
+    end)
+
+    ContentProvider:PreloadAsync({sound})
+
+    task.wait(0.3)
+
+    local isReallyValid = loaded and sound.IsLoaded and sound.TimeLength > 1
+
+    connection:Disconnect()
+    sound:Destroy()
+
+    return isReallyValid
+end
+
 local function FilterMusic()
-    local sounds = {}
-    local musicBySound = {}
-
     for name, id in pairs(list) do
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://" .. tostring(id)
-        table.insert(sounds, sound)
-        musicBySound[sound] = {
-            Name = name,
-            Id = tostring(id)
-        }
-    end
-
-    ContentProvider:PreloadAsync(sounds)
-
-    for _, sound in ipairs(sounds) do
-        if sound.IsLoaded and sound.TimeLength > 0 then
-            local data = musicBySound[sound]
-            if data then
-                ValidMusic[data.Name] = data.Id
-            end
+        if IsValidAudio(id) then
+            ValidMusic[name] = tostring(id)
         end
-        sound:Destroy()
     end
-
     return ValidMusic
 end
 
