@@ -19,25 +19,21 @@ local function FilterMusic()
     end
 
     ContentProvider:PreloadAsync(sounds, function(contentId, status)
+        if status == Enum.AssetFetchStatus.Success then
+            for sound, data in pairs(musicBySound) do
+                if sound.SoundId == contentId then
+                    ValidMusic[data.Name] = data.Id
+                    break
+                end
+            end
+        end
     end)
 
     for _, sound in ipairs(sounds) do
-        local success = pcall(function()
-            ContentProvider:PreloadAsync({sound})
-        end)
-
-        if success then
-            local data = musicBySound[sound]
-
-            if data then
-                ValidMusic[data.Name] = data.Id
-            end
-        end
-
         sound:Destroy()
     end
+    
     return ValidMusic
 end
 
-local filteredList = FilterMusic()
-return filteredList
+return FilterMusic()
