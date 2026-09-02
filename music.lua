@@ -20,30 +20,28 @@ local function IsValidAudio(id)
     sound.SoundId = "rbxassetid://" .. id
 
     local loaded = false
-    local connection
-    connection = sound.Loaded:Connect(function()
+    local connection = sound.Loaded:Connect(function()
         loaded = true
     end)
 
-    ContentProvider:PreloadAsync({sound})
+    pcall(function()
+        ContentProvider:PreloadAsync({sound})
+    end)
 
-    task.wait(0.3)
+    task.wait(0.35)
 
-    local isReallyValid = loaded and sound.IsLoaded and sound.TimeLength > 1
+    local isValid = loaded and sound.IsLoaded and sound.TimeLength > 1
 
     connection:Disconnect()
     sound:Destroy()
 
-    return isReallyValid
+    return isValid
 end
 
-local function FilterMusic()
-    for name, id in pairs(list) do
-        if IsValidAudio(id) then
-            ValidMusic[name] = tostring(id)
-        end
+for name, id in pairs(list) do
+    if IsValidAudio(id) then
+        ValidMusic[name] = tostring(id)
     end
-    return ValidMusic
 end
 
-return FilterMusic()
+return ValidMusic
