@@ -6,7 +6,6 @@ local ValidMusic = {}
 local function FilterMusic()
     local sounds = {}
     local musicBySound = {}
-    local remaining = 0
 
     for name, id in pairs(list) do
         local sound = Instance.new("Sound")
@@ -16,32 +15,17 @@ local function FilterMusic()
             Name = name,
             Id = tostring(id)
         }
-        remaining += 1
     end
 
-    local finished = false
-
-    ContentProvider:PreloadAsync(sounds, function(contentId, status)
-        if status == Enum.AssetFetchStatus.Success then
-            for sound, data in pairs(musicBySound) do
-                if sound.SoundId == contentId then
-                    ValidMusic[data.Name] = data.Id
-                    break
-                end
-            end
-        end
-
-        remaining -= 1
-        if remaining <= 0 then
-            finished = true
-        end
-    end)
-
-    while not finished do
-        task.wait()
-    end
+    ContentProvider:PreloadAsync(sounds)
 
     for _, sound in ipairs(sounds) do
+        if sound.IsLoaded then
+            local data = musicBySound[sound]
+            if data then
+                ValidMusic[data.Name] = data.Id
+            end
+        end
         sound:Destroy()
     end
 
