@@ -20,7 +20,7 @@ local function FilterMusic()
     ContentProvider:PreloadAsync(sounds)
 
     for _, sound in ipairs(sounds) do
-        if sound.IsLoaded then
+        if sound.IsLoaded and sound.TimeLength > 0 then
             local data = musicBySound[sound]
             if data then
                 ValidMusic[data.Name] = data.Id
