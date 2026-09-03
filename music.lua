@@ -1,10 +1,14 @@
 local MarketplaceService = game:GetService("MarketplaceService")
-local MUSIC_LIST = loadstring(game:HttpGet("https://raw.githubusercontent.com/GemmandKilua2010/Music/main/list.lua"))()
+local SourceMusic = loadstring(game:HttpGet("https://raw.githubusercontent.com/GemmandKilua2010/Music/main/list.lua"))()
+
+if type(SourceMusic) ~= "table" then
+    return {}
+end
 
 local ValidMusic = {}
 local Pending = 0
 
-for name, id in pairs(MUSIC_LIST) do
+for name, id in pairs(SourceMusic) do
     Pending += 1
 
     task.spawn(function()
@@ -28,6 +32,6 @@ end
 
 repeat
     task.wait()
-until Pending == 0
+until Pending <= 0
 
 return ValidMusic
