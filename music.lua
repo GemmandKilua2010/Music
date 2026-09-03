@@ -1,7 +1,8 @@
 local Marketplace = game:GetService("MarketplaceService")
 local ContentProvider = game:GetService("ContentProvider")
-
 local MUSIC_LIST = loadstring(game:HttpGet("https://raw.githubusercontent.com/GemmandKilua2010/Music/main/list.lua"))()
+
+local ValidMusic = {}
 
 local function IsValidSound(soundId)
 	local success, info = pcall(function()
@@ -32,10 +33,14 @@ local function IsValidSound(soundId)
 	return loaded
 end
 
-for name, soundId in pairs(MUSIC_LIST) do
-	if not IsValidSound(soundId) then
-		MUSIC_LIST[name] = nil
+task.spawn(function()
+	for name, soundId in pairs(MUSIC_LIST) do
+		task.spawn(function()
+			if IsValidSound(soundId) then
+				ValidMusic[name] = soundId
+			end
+		end)
 	end
-end
+end)
 
-return MUSIC_LIST
+return ValidMusic
