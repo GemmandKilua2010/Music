@@ -30,4 +30,4 @@ repeat
     task.wait()
 until Pending == 0
 
-return ValidMusic
+MUSIC_LIST = ValidMusic
